@@ -551,24 +551,24 @@ const [submissionStatus, setSubmissionStatus] = useState<{
                 <CarouselContent className="-ml-4 items-stretch">
                   {[
                     {
-                      title: "Salon luxueux, Marrakech",
+                      title: "Salon luxueux",
                       description: "Un espace de vie moderne avec des murs texturés et un éclairage élégant.",
-                      image: "/e76e0db568d68266994ebf463ce2b76d.jpg",
+                      image: "/WhatsApp Image 2025-07-05 at 01.39.25.jpeg",
                     },
                     {
-                      title: "Design de mur orné, Fès",
+                      title: "Design de mur orné",
                       description: "Textures murales artisanales avec des motifs intricés.",
-                      image: "/d5048291c9fae766adedbac6a10b6bce.jpg",
+                      image: "/WhatsApp Image 2025-07-05 at 01.43.22.jpeg",
                     },
                     {
-                      title: "Maison marocaine traditionnelle, Rabat",
+                      title: "Maison marocaine traditionnelle",
                       description: "Un mélange d'architecture traditionnelle et de confort moderne.",
-                      image: "/40e4c466b1f739612b7eaa19fe3fa8d8.jpg",
+                      image: "/WhatsApp Image 2025-07-05 at 01.39.28.jpeg",
                     },
                     {
-                      title: "Art du plafond, Casablanca",
+                      title: "Art du plafond",
                       description: "Designs de plafonds ornés avec un éclairage ambiant.",
-                      image: "/989c893296002988f651484665b32433.jpg",
+                      image: "/WhatsApp Image 2025-07-05 at 01.43.21 (1).jpeg",
                     },
                   ].map((project, index) => (
                     <CarouselItem key={index} className="pl-4 basis-full">
