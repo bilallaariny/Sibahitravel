@@ -25,7 +25,7 @@ export function SiteHeader() {
       <div className="container flex h-16 items-center justify-between mx-auto px-2 py-4 max-w-6xl md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-primary text-2xl tracking-wide">
          <Image
-                       src="/6_sibahi_travaux_Export_couleur_horiz 2.png"
+                       src="/6_sibahi_travaux_Export_couleur_horiz.png"
                        alt="Construction site background"
                        width={220}
                        height={110}

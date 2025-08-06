@@ -1,4 +1,4 @@
-"use client" // This component uses client-side features like framer-motion
+"use client" // Ce composant utilise des fonctionnalités côté client comme framer-motion
 
 import Link from "next/link"
 import Image from "next/image"
@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import {
-  Building,
+  Palette,
+  Home,
+  Sofa,
+  Lightbulb,
   MapPin,
   Phone,
   Mail,
@@ -16,22 +19,19 @@ import {
   CheckCircle,
   Users,
   Leaf,
-  Wrench,
-  MapIcon as City,
-  RouteIcon as Road,
-  Handshake,
-  Sparkles,
-  Facebook,
-  Linkedin,
   Instagram,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react"
 import AnimatedButton from "@/components/animated-button"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { TypewriterEffect } from "@/components/typing-animation"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
+import { useEffect, useState } from "react"
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer"
 
-// Define common animation variants
+// Définir les variantes d'animation communes
 const fadeIn = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.8, ease: "easeOut" } },
@@ -62,101 +62,138 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
 }
 
-// Stagger children for containers
+// Variantes pour les conteneurs avec décalage
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2, // Adjust stagger delay as needed
+      staggerChildren: 0.2,
     },
   },
 }
 
-// Child variants for staggered animations
+// Variantes pour les éléments avec décalage
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 }
 
 export default function HomePage() {
+  // Refs for intersection observation with explicit types
+  const [titleRef, titleHasAnimated] = useIntersectionObserver<HTMLHeadingElement>({ threshold: 0.1 })
+  const [descriptionRef, descriptionHasAnimated] = useIntersectionObserver<HTMLHeadingElement>({ threshold: 0.1 })
+  const [formRef, formHasAnimated] = useIntersectionObserver<HTMLDivElement>({ threshold: 0.1 })
+  const [contactMethodsRef, contactMethodsHasAnimated] = useIntersectionObserver<HTMLDivElement>({ threshold: 0.1 })
+const [submissionStatus, setSubmissionStatus] = useState<{
+    success: boolean | null;
+    message: string;
+  }>({ success: null, message: "" });
+
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (submissionStatus.success !== null) {
+      const timer = setTimeout(() => {
+        setSubmissionStatus({ success: null, message: "" });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [submissionStatus]);
+
+  async function handleSubmit(e:any) {
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    const data = {
+      name: form.name.value,
+      
+      email: form.email.value,
+      
+      message: form.message.value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        setSubmissionStatus({
+          success: true,
+          message: "Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.",
+        });
+        form.reset();
+      } else {
+        setSubmissionStatus({
+          success: false,
+          message: "Une erreur est survenue lors de l'envoi. Veuillez réessayer ou nous contacter directement par email.",
+        });
+      }
+    } catch (error) {
+      setSubmissionStatus({
+        success: false,
+        message: "Erreur de connexion. Vérifiez votre réseau et réessayez.",
+      });
+    }
+  }
   const services = [
     {
-      icon: Building,
-      title: "Construction tous corps d'état",
-      description:
-        "Réalisation de bâtiments résidentiels, commerciaux et industriels, de la conception à la livraison.",
+      icon: Palette,
+      title: "Design d'intérieur",
+      description: "Création d'intérieurs sur mesure avec des textures luxueuses et des esthétiques modernes.",
     },
     {
-      icon: Wrench,
-      title: "Travaux de réhabilitation",
-      description:
-        "Rénovation et restauration de bâtiments anciens ou endommagés, avec respect des normes patrimoniales.",
+      icon: Home,
+      title: "Rénovation architecturale",
+      description: "Revitalisation des espaces avec des éléments marocains traditionnels et contemporains.",
     },
     {
-      icon: City,
-      title: "Aménagements urbains",
-      description: "Création d'espaces publics, routes, trottoirs et infrastructures urbaines.",
+      icon: Sofa,
+      title: "Personnalisation de meubles",
+      description: "Meubles sur mesure pour compléter votre style intérieur unique.",
     },
     {
-      icon: Road,
-      title: "Travaux publics",
-      description: "Construction de ponts, réseaux d'assainissement, et autres infrastructures d'envergure.",
-    },
-    {
-      icon: Handshake,
-      title: "Négociation et conseil",
-      description: "Accompagnement dans la gestion de projets, études de faisabilité et optimisation des coûts.",
-    },
-    {
-      icon: Sparkles,
-      title: "Solutions durables",
-      description:
-        "Intégration de technologies et matériaux écoresponsables pour des constructions respectueuses de l'environnement.",
+      icon: Lightbulb,
+      title: "Solutions d'éclairage",
+      description: "Designs d'éclairage innovants pour améliorer l'ambiance et la fonctionnalité.",
     },
   ]
   const features = [
     {
       icon: CheckCircle,
-      title: "Expertise technique",
-      description: "Une maîtrise parfaite des techniques de construction modernes et traditionnelles.",
+      title: "Artisanat expert",
+      description: "Artisans qualifiés offrant un design et une exécution de haute qualité.",
     },
     {
       icon: Leaf,
-      title: "Engagement durable",
-      description:
-        "Une approche écoresponsable intégrant des matériaux durables et des pratiques respectueuses de l'environnement.",
-    },
-    {
-      icon: Handshake,
-      title: "Proximité client",
-      description: "Une écoute attentive et un accompagnement personnalisé à chaque étape de votre projet.",
+      title: "Matériaux durables",
+      description: "Utilisation de matériaux écologiques pour un espace de vie plus vert.",
     },
     {
       icon: Users,
-      title: "Équipe qualifiée",
-      description: "Plus de 200 collaborateurs formés et passionnés, soutenus par un parc d'équipements modernes.",
+      title: "Service personnalisé",
+      description: "Une équipe dédiée pour concrétiser votre vision avec soin.",
     },
   ]
   return (
-    <div className="flex flex-col min-h-[100dvh] scroll-smooth ">
+    <div className="flex flex-col min-h-[100dvh] scroll-smooth">
       <SiteHeader />
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Section Héros */}
         <section
           id="home"
-          className="relative w-full min-h-screen flex items-center justify-center text-center overflow-hidden bg-secondary "
+          className="relative w-full min-h-screen flex items-center justify-center text-center overflow-hidden bg-secondary"
         >
-          {/* Placeholder for video background with a creative overlay */}
-          <div className="absolute inset-0 z-0 ">
+          <div className="absolute inset-0 z-0">
             <Image
-              src="/e76e0db568d68266994ebf463ce2b76d.jpg"
-              alt="Construction site background"
+              src="/WhatsApp Image 2025-07-05 at 01.39.26.jpeg" // Exemple : salon moderne avec TV
+              alt="Design d'intérieur élégant"
               layout="fill"
               objectFit="cover"
               className="opacity-40"
             />
-            {/* Creative gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/40 to-transparent"></div>
           </div>
           <motion.div
@@ -167,40 +204,37 @@ export default function HomePage() {
           >
             <motion.div variants={slideUp}>
               <TypewriterEffect
-                baseText="Sibahi Travel -"
-                wordsToAnimate={["Construisons l’avenir ensemble"]}
+                baseText="Moroccan Elegance Designs -"
+                wordsToAnimate={["Transformons vos espaces avec style"]}
                 typingSpeed={100}
                 erasingSpeed={50}
                 delayBetweenActions={1000}
               />
             </motion.div>
             <motion.p variants={slideUp} className="text-lg md:text-xl lg:text-2xl font-medium">
-              Votre partenaire de confiance pour tous vos projets de construction au Maroc
+              Élevez votre maison avec des designs marocains exquis
             </motion.p>
             <motion.p variants={fadeIn} className="text-base md:text-lg leading-relaxed">
-              Bienvenue chez Sibahi Travel, votre expert en travaux divers et bâtiment au Maroc. Depuis notre création,
-              nous mettons notre savoir-faire et notre passion au service de vos projets, qu’ils soient résidentiels,
-              commerciaux ou industriels. Avec une équipe qualifiée et un engagement fort envers la qualité et la
-              durabilité, nous transformons vos idées en réalité. Confiez-nous vos ambitions, et bâtissons un avenir
-              solide ensemble.
+              Bienvenue chez Moroccan Elegance Designs, où nous fusionnons l'artisanat marocain traditionnel avec des
+              techniques de design modernes. Des murs texturés aux plafonds ornés, nous créons des intérieurs
+              magnifiques qui reflètent votre personnalité et votre héritage.
             </motion.p>
             <motion.div variants={slideUp} className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
               <AnimatedButton className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                <Link href="#contact">Demandez un devis gratuit</Link>
+                <Link href="#contact">Demander une consultation</Link>
               </AnimatedButton>
               <AnimatedButton className="border-2 border-primary text-primary bg-transparent hover:bg-primary/10 px-8 py-3 text-lg rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                <Link href="#projects">Découvrez nos réalisations</Link>
+                <Link href="#projects">Voir notre portfolio</Link>
               </AnimatedButton>
             </motion.div>
           </motion.div>
         </section>
-        {/* About Section */}
+        {/* Section À propos */}
         <section
           id="about"
           className="w-full py-20 md:py-32 lg:py-40 bg-background text-foreground relative overflow-hidden"
         >
           <div className="container mx-auto px-16 max-w-6xl">
-            {/* Desktop Grid Layout */}
             <div className="hidden md:grid md:grid-cols-2 gap-16 items-center">
               <motion.div
                 initial="hidden"
@@ -216,14 +250,12 @@ export default function HomePage() {
                   Qui sommes-nous ?
                 </motion.h2>
                 <motion.h3 variants={slideUp} className="text-xl md:text-2xl font-semibold text-secondary">
-                  Une entreprise marocaine au service de l'excellence
+                  Créateurs d'intérieurs intemporels
                 </motion.h3>
                 <motion.p variants={fadeIn} className="text-lg leading-relaxed text-muted-foreground">
-                  Sibahi Travel s'est imposée comme l'un des acteurs majeurs du secteur du bâtiment et des travaux
-                  publics au Maroc. Basée à <span className="font-semibold text-foreground">Rabat</span>, notre
-                  entreprise intervient sur l'ensemble du territoire national, couvrant une large gamme de projets :
-                  construction de bâtiments, travaux de réhabilitation, aménagements urbains et travaux
-                  d'infrastructure.
+                  Moroccan Elegance Designs, basé à Rabat, se spécialise dans la création d'intérieurs luxueux inspirés
+                  du patrimoine marocain. Notre expertise couvre les designs de murs texturés, les éclairages sur mesure
+                  et les rénovations architecturales, servant des clients à travers le Maroc.
                 </motion.p>
                 <motion.div
                   initial="hidden"
@@ -258,17 +290,15 @@ export default function HomePage() {
                 className="flex justify-center relative"
               >
                 <Image
-                  src="/d5048291c9fae766adedbac6a10b6bce.jpg"
+                  src="/DSC_5687.jpg" // Exemple : mur orné
                   width={900}
                   height={700}
-                  alt="About Us"
+                  alt="Design d'intérieur"
                   className="rounded-3xl object-cover shadow-2xl transition-transform transform hover:scale-105 duration-500"
                 />
-                {/* Decorative element */}
                 <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
               </motion.div>
             </div>
-            {/* Mobile Layout */}
             <div className="md:hidden text-center">
               <motion.h2
                 initial="hidden"
@@ -286,7 +316,7 @@ export default function HomePage() {
                 variants={slideUp}
                 className="text-xl font-semibold text-secondary mb-8"
               >
-                Une entreprise marocaine au service de l'excellence
+                Créateurs d'intérieurs intemporels
               </motion.h3>
               <motion.p
                 initial="hidden"
@@ -295,12 +325,10 @@ export default function HomePage() {
                 variants={fadeIn}
                 className="text-lg leading-relaxed mb-12 opacity-90"
               >
-                Sibahi Travel s'est imposée comme l'un des acteurs majeurs du secteur du bâtiment et des travaux publics
-                au Maroc. Basée à <span className="font-semibold text-foreground">Rabat</span>, notre entreprise
-                intervient sur l'ensemble du territoire national, couvrant une large gamme de projets : construction de
-                bâtiments, travaux de réhabilitation, aménagements urbains et travaux d'infrastructure.
+                Moroccan Elegance Designs, basé à Rabat, se spécialise dans la création d'intérieurs luxueux inspirés
+                du patrimoine marocain. Notre expertise couvre les designs de murs texturés, les éclairages sur mesure
+                et les rénovations architecturales, servant des clients à travers le Maroc.
               </motion.p>
-              {/* Mobile Carousel Layout */}
               <motion.div
                 initial="hidden"
                 whileInView="visible"
@@ -337,7 +365,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        {/* Services Section */}
+        {/* Section Services */}
         <section
           id="services"
           className="w-full py-20 md:py-32 lg:py-40 bg-secondary text-secondary-foreground relative overflow-hidden"
@@ -359,7 +387,7 @@ export default function HomePage() {
               variants={slideUp}
               className="text-xl md:text-2xl font-semibold mb-12"
             >
-              Une expertise complète pour tous vos besoins en Bâtiment
+              Élevez votre espace
             </motion.h3>
             <motion.p
               initial="hidden"
@@ -368,17 +396,15 @@ export default function HomePage() {
               variants={fadeIn}
               className="max-w-3xl mx-auto text-lg leading-relaxed mb-16 opacity-90"
             >
-              Sibahi Travel propose une gamme complète de services pour répondre aux besoins variés de ses clients. Que
-              vous soyez un particulier, une entreprise ou une collectivité, nous avons les compétences et les
-              ressources pour mener à bien vos projets.
+              Moroccan Elegance Designs propose une gamme de services pour transformer votre maison ou bureau avec des
+              designs inspirés du Maroc.
             </motion.p>
-            {/* Desktop Grid Layout */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
               variants={containerVariants}
-              className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
+              className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10"
             >
               {services.map((service, index) => {
                 const Icon = service.icon
@@ -395,7 +421,6 @@ export default function HomePage() {
                 )
               })}
             </motion.div>
-            {/* Mobile Carousel Layout */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -431,7 +456,7 @@ export default function HomePage() {
             </motion.div>
           </div>
         </section>
-        {/* Projects Section */}
+        {/* Section Projets */}
         <section id="projects" className="w-full py-20 md:py-32 lg:py-40 bg-background text-foreground">
           <div className="container text-center mx-auto px-16 max-w-6xl">
             <motion.h2
@@ -441,7 +466,7 @@ export default function HomePage() {
               variants={slideUp}
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4"
             >
-              Nos réalisations
+              Notre portfolio
             </motion.h2>
             <motion.h3
               initial="hidden"
@@ -450,7 +475,7 @@ export default function HomePage() {
               variants={slideUp}
               className="text-xl md:text-2xl font-semibold text-secondary mb-12"
             >
-              Des projets qui témoignent de notre savoir-faire
+              Inspiré par la beauté marocaine
             </motion.h3>
             <motion.p
               initial="hidden"
@@ -459,11 +484,9 @@ export default function HomePage() {
               variants={fadeIn}
               className="max-w-3xl mx-auto text-lg leading-relaxed mb-16 opacity-90"
             >
-              Découvrez une sélection de nos projets phares, réalisés avec rigueur et passion à travers le Maroc. Chaque
-              chantier est une preuve de notre engagement envers la qualité, l’innovation et la satisfaction de nos
-              clients.
+              Découvrez notre portfolio d'intérieurs et de designs architecturaux qui témoignent de notre engagement
+              envers l'artisanat et le style.
             </motion.p>
-            {/* Desktop Grid Layout */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -473,25 +496,24 @@ export default function HomePage() {
             >
               {[
                 {
-                  title: "Complexe résidentiel Al Amal, Casablanca",
-                  description: "Construction d’un ensemble de 150 logements modernes avec espaces verts et commodités.",
-                  image: "/8e7a74878b08a9b9668ad7bfbcc9e7e4.jpg",
+                  title: "Salon luxueux",
+                  description: "Un espace de vie moderne avec des murs texturés et un éclairage élégant.",
+                  image: "/WhatsApp Image 2025-07-05 at 01.39.25.jpeg",
                 },
                 {
-                  title: "Réhabilitation de l’Hôtel Historique, Fès",
-                  description: "Restauration d’un bâtiment patrimonial tout en intégrant des équipements modernes.",
-                  image: "/f8291e1bc6bcb7469e23f27360746f9b.jpg",
+                  title: "Design de mur orné",
+                  description: "Textures murales artisanales avec des motifs intricés.",
+                  image: "/WhatsApp Image 2025-07-05 at 01.43.22.jpeg",
                 },
                 {
-                  title: "Route régionale, Marrakech",
-                  description:
-                    "Réalisation d’une voie de 20 km avec infrastructures d’assainissement et éclairage public.",
-                  image: "/40e4c466b1f739612b7eaa19fe3fa8d8.jpg",
+                  title: "Maison marocaine traditionnelle",
+                  description: "Un mélange d'architecture traditionnelle et de confort moderne.",
+                  image: "/WhatsApp Image 2025-07-05 at 01.39.28.jpeg",
                 },
                 {
-                  title: "Centre commercial Oasis, Rabat",
-                  description: "Construction d’un espace commercial de 10 000 m² avec parking souterrain.",
-                  image: "/989c893296002988f651484665b32433.jpg",
+                  title: "Art du plafond, Casablanca",
+                  description: "Designs de plafonds ornés avec un éclairage ambiant.",
+                  image: "/WhatsApp Image 2025-07-05 at 01.43.21 (1).jpeg",
                 },
               ].map((project, index) => (
                 <motion.div
@@ -513,7 +535,6 @@ export default function HomePage() {
                 </motion.div>
               ))}
             </motion.div>
-            {/* Mobile Carousel Layout */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -530,25 +551,23 @@ export default function HomePage() {
                 <CarouselContent className="-ml-4 items-stretch">
                   {[
                     {
-                      title: "Complexe résidentiel Al Amal, Casablanca",
-                      description:
-                        "Construction d’un ensemble de 150 logements modernes avec espaces verts et commodités.",
-                      image: "/8e7a74878b08a9b9668ad7bfbcc9e7e4.jpg",
+                      title: "Salon luxueux, Marrakech",
+                      description: "Un espace de vie moderne avec des murs texturés et un éclairage élégant.",
+                      image: "/e76e0db568d68266994ebf463ce2b76d.jpg",
                     },
                     {
-                      title: "Réhabilitation de l’Hôtel Historique, Fès",
-                      description: "Restauration d’un bâtiment patrimonial tout en intégrant des équipements modernes.",
-                      image: "/f8291e1bc6bcb7469e23f27360746f9b.jpg",
+                      title: "Design de mur orné, Fès",
+                      description: "Textures murales artisanales avec des motifs intricés.",
+                      image: "/d5048291c9fae766adedbac6a10b6bce.jpg",
                     },
                     {
-                      title: "Route régionale, Marrakech",
-                      description:
-                        "Réalisation d’une voie de 20 km avec infrastructures d’assainissement et éclairage public.",
+                      title: "Maison marocaine traditionnelle, Rabat",
+                      description: "Un mélange d'architecture traditionnelle et de confort moderne.",
                       image: "/40e4c466b1f739612b7eaa19fe3fa8d8.jpg",
                     },
                     {
-                      title: "Centre commercial Oasis, Rabat",
-                      description: "Construction d’un espace commercial de 10 000 m² avec parking souterrain.",
+                      title: "Art du plafond, Casablanca",
+                      description: "Designs de plafonds ornés avec un éclairage ambiant.",
                       image: "/989c893296002988f651484665b32433.jpg",
                     },
                   ].map((project, index) => (
@@ -575,7 +594,7 @@ export default function HomePage() {
             </motion.div>
           </div>
         </section>
-        {/* Contact Section */}
+        {/* Section Contact */}
         <section
           id="contact"
           className="w-full py-20 md:py-32 lg:py-40 bg-secondary text-secondary-foreground relative overflow-hidden"
@@ -596,11 +615,11 @@ export default function HomePage() {
                   Contactez-nous
                 </motion.h2>
                 <motion.h3 variants={slideUp} className="text-xl md:text-2xl font-semibold">
-                  Prêts à donner vie à votre projet
+                  Créons quelque chose de magnifique ensemble
                 </motion.h3>
                 <motion.p variants={fadeIn} className="text-lg leading-relaxed opacity-90">
-                  Sibahi Travel est à votre disposition pour discuter de vos projets, répondre à vos questions ou vous
-                  fournir un devis personnalisé. Contactez-nous dès maintenant et commençons à bâtir l’avenir ensemble.
+                  Moroccan Elegance Designs est prêt à vous aider à transformer votre espace. Contactez-nous pour une
+                  consultation ou pour discuter de vos idées de design.
                 </motion.p>
               </div>
               <motion.div
@@ -612,19 +631,19 @@ export default function HomePage() {
               >
                 <motion.div variants={itemVariants} className="flex items-center gap-4">
                   <MapPin className="h-8 w-8 text-primary flex-shrink-0" />
-                  <p className="text-lg opacity-90">123 Avenue Mohammed V, Rabat, Maroc</p>
+                  <p className="text-lg opacity-90">45 Rue des Arts, Rabat, Maroc</p>
                 </motion.div>
                 <motion.div variants={itemVariants} className="flex items-center gap-4">
                   <Phone className="h-8 w-8 text-primary flex-shrink-0" />
-                  <p className="text-lg opacity-90">+212 5XX XXX XXX</p>
+                  <p className="text-lg opacity-90">+212 6XX XXX XXX</p>
                 </motion.div>
                 <motion.div variants={itemVariants} className="flex items-center gap-4">
                   <Mail className="h-8 w-8 text-primary flex-shrink-0" />
-                  <p className="text-lg opacity-90">contact@sibahitravel.ma</p>
+                  <p className="text-lg opacity-90">info@moroccanelegance.ma</p>
                 </motion.div>
                 <motion.div variants={itemVariants} className="flex items-center gap-4">
                   <Clock className="h-8 w-8 text-primary flex-shrink-0" />
-                  <p className="text-lg opacity-90">Lundi au vendredi, 8h00 - 18h00</p>
+                  <p className="text-lg opacity-90">Lundi au vendredi, 9h00 - 17h00</p>
                 </motion.div>
               </motion.div>
               <motion.div
@@ -635,19 +654,9 @@ export default function HomePage() {
                 className="space-y-4"
               >
                 <motion.h4 variants={slideUp} className="text-2xl font-semibold text-primary">
-                  Suivez-nous sur les réseaux sociaux
+                  Suivez-nous
                 </motion.h4>
                 <motion.div variants={itemVariants} className="flex gap-6">
-                  <Link href="#" aria-label="Facebook">
-                    <div className="p-3 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors duration-300">
-                      <Facebook className="h-7 w-7 text-primary" />
-                    </div>
-                  </Link>
-                  <Link href="#" aria-label="LinkedIn">
-                    <div className="p-3 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors duration-300">
-                      <Linkedin className="h-7 w-7 text-primary" />
-                    </div>
-                  </Link>
                   <Link href="#" aria-label="Instagram">
                     <div className="p-3 rounded-full bg-primary/20 hover:bg-primary/40 transition-colors duration-300">
                       <Instagram className="h-7 w-7 text-primary" />
@@ -672,13 +681,16 @@ export default function HomePage() {
                 viewport={{ once: true, amount: 0.3 }}
                 variants={containerVariants}
                 className="grid gap-6"
+                onSubmit={handleSubmit}
               >
+                
                 <motion.div variants={itemVariants} className="grid gap-2">
                   <Label htmlFor="name" className="text-base">
                     Nom
                   </Label>
                   <Input
                     id="name"
+                    name="name"
                     placeholder="Votre nom"
                     className="p-3 border-gray-300 focus:border-primary focus:ring-primary"
                   />
@@ -690,6 +702,7 @@ export default function HomePage() {
                   <Input
                     id="email"
                     type="email"
+                    name="email"
                     placeholder="Votre email"
                     className="p-3 border-gray-300 focus:border-primary focus:ring-primary"
                   />
@@ -700,15 +713,41 @@ export default function HomePage() {
                   </Label>
                   <Textarea
                     id="message"
-                    placeholder="Décrivez votre projet ou votre question"
+                    name="message"
+                    placeholder="Décrivez votre projet de design"
                     className="min-h-[140px] p-3 border-gray-300 focus:border-primary focus:ring-primary"
                   />
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <AnimatedButton className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-4 text-xl rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                    Envoyer ma demande
+                    Envoyer
                   </AnimatedButton>
                 </motion.div>
+                   {/* Animated status message */}
+                  <AnimatePresence>
+                    {submissionStatus.success !== null && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className={`p-4 rounded-md border ${
+                          submissionStatus.success
+                            ? "bg-green-50 border-green-200 text-green-700"
+                            : "bg-red-50 border-red-200 text-red-700"
+                        }`}
+                      >
+                        <div className="flex items-start space-x-3">
+                          {submissionStatus.success ? (
+                            <CheckCircle2 className="w-5 h-5 mt-0.5 text-green-500 flex-shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-5 h-5 mt-0.5 text-red-500 flex-shrink-0" />
+                          )}
+                          <p className="text-sm">{submissionStatus.message}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
               </motion.form>
             </motion.div>
           </div>
