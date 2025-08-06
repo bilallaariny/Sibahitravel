@@ -1,17 +1,21 @@
 import Link from "next/link"
-import { Hammer, Facebook, Linkedin, Instagram } from "lucide-react"
+import { Hammer, Facebook, Linkedin, Instagram } from 'lucide-react'
+import { useLocale } from "@/context/locale-context"
 
 export function SiteFooter() {
+  const { t, locale } = useLocale();
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-secondary text-secondary-foreground py-12 md:py-16">
       <div className="container grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10 px-4 md:px-6">
         <div className="flex flex-col gap-4">
           <Link href="#" className="flex items-center gap-2 font-bold text-2xl">
             <Hammer className="h-7 w-7 text-primary" />
-            <span>Sibahi Travel</span>
+            <span>{t("header.companyName")}</span>
           </Link>
           <p className="text-sm leading-relaxed opacity-90">
-            Votre partenaire de confiance pour tous vos projets de construction au Maroc.
+            {t("footer.tagline")}
           </p>
           <div className="flex gap-5 mt-4">
             <Link href="#" aria-label="Facebook">
@@ -26,37 +30,39 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="grid gap-3">
-          <h3 className="text-lg font-semibold text-primary mb-2">Liens rapides</h3>
+          <h3 className="text-lg font-semibold text-primary mb-2">{t("footer.quickLinks")}</h3>
           <Link href="#home" className="text-sm hover:underline underline-offset-4 opacity-90">
-            Accueil
+            {t("footer.home")}
           </Link>
           <Link href="#about" className="text-sm hover:underline underline-offset-4 opacity-90">
-            À propos
+            {t("footer.about")}
           </Link>
           <Link href="#services" className="text-sm hover:underline underline-offset-4 opacity-90">
-            Services
+            {t("footer.services")}
           </Link>
           <Link href="#projects" className="text-sm hover:underline underline-offset-4 opacity-90">
-            Projets
+            {t("footer.projects")}
           </Link>
           <Link href="#contact" className="text-sm hover:underline underline-offset-4 opacity-90">
-            Contact
+            {t("footer.contact")}
           </Link>
         </div>
         <div className="grid gap-3">
-          <h3 className="text-lg font-semibold text-primary mb-2">Contact</h3>
-          <p className="text-sm opacity-90">123 Avenue Mohammed V, Rabat, Maroc</p>
-          <p className="text-sm opacity-90">+212 5XX XXX XXX</p>
-          <p className="text-sm opacity-90">contact@sibahitravel.ma</p>
-          <p className="text-sm opacity-90">Lun-Ven: 8h00 - 18h00</p>
+          <h3 className="text-lg font-semibold text-primary mb-2">{t("footer.contactHeading")}</h3>
+          <p className="text-sm opacity-90">{t("footer.address")}</p>
+          <p className="text-sm opacity-90">{t("footer.phone")}</p>
+          <p className="text-sm opacity-90">{t("footer.email")}</p>
+          <p className="text-sm opacity-90">{t("footer.hours")}</p>
         </div>
         <div className="grid gap-3">
-          <h3 className="text-lg font-semibold text-primary mb-2">Informations légales</h3>
-          <p className="text-sm opacity-90">© {new Date().getFullYear()} Sibahi Travel. Tous droits réservés.</p>
+          <h3 className="text-lg font-semibold text-primary mb-2">{t("footer.legalInfo")}</h3>
+          <p className="text-sm opacity-90">
+            {t("footer.copyright").replace("{year}", currentYear.toString())}
+          </p>
           <Link href="#" className="text-sm hover:underline underline-offset-4 opacity-90">
-            Politique de confidentialité
+            {t("footer.privacyPolicy")}
           </Link>
-          <p className="text-sm opacity-90">Certifications: ISO 9001</p>
+          <p className="text-sm opacity-90">{t("footer.certifications")}</p>
         </div>
       </div>
     </footer>

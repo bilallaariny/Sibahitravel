@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
+import { LocaleProvider } from '@/context/locale-context'
 
 export const metadata: Metadata = {
   title: 'sibahi travel',
@@ -25,7 +26,9 @@ html {
 }
         `}</style>
       </head>
+       <LocaleProvider>
       <body>{children}</body>
+      </LocaleProvider>
     </html>
   )
 }
